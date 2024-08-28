@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>customSites</key>
+	<dict>
+		<key>11EB88DF-61EA-4182-91D0-619A25EF4F66</key>
+		<dict>
+			<key>enabled</key>
+			<true/>
+			<key>keyword</key>
+			<string>baidu</string>
+			<key>text</key>
+			<string>Search baidu for '{query}'</string>
+			<key>url</key>
+			<string>https://www.baidu.com/s?wd={query}</string>
+			<key>utf8</key>
+			<true/>
+		</dict>
+		<key>5AB9013F-C314-4E15-B89D-59EF1831FAF2</key>
+		<dict>
+			<key>enabled</key>
+			<true/>
+			<key>keyword</key>
+			<string>github</string>
+			<key>text</key>
+			<string>Github for '{query}'</string>
+			<key>url</key>
+			<string>https://github.com/search?q={query}&amp;type=repositories</string>
+			<key>utf8</key>
+			<true/>
+		</dict>
+		<key>DEDF5157-DD41-4AA1-A2E4-B48E5E6291E6</key>
+		<dict>
+			<key>enabled</key>
+			<true/>
+			<key>keyword</key>
+			<string>translate-baidu</string>
+			<key>text</key>
+			<string>Translate baidu for '{query}'</string>
+			<key>url</key>
+			<string>https://fanyi.baidu.com/translate?query={query}&amp;keyfrom=baidu&amp;smartresult=dict&amp;lang=auto2zh#en/zh/</string>
+			<key>utf8</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>

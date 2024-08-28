@@ -6,11 +6,10 @@
 pod trunk register 'chenjie003@qq.com' 'chenxiaojie' --description='chenxiaojie'
 ```
 
-(1) 提交内容：git commit -m'修改内容'
-
-(2) 打tag： git tag 0.2.8
-(3) 推tag: git push --tags
-(4) 推送远程仓库，如下：
+1) 提交代码: git commit -m'修改内容'
+2) 打 tag: git tag 0.0.1
+3) 推 tag: git push --tags
+4) 推送远程仓库，如下：
 
 #### 一、公有库(github)
 1. 推到远程仓库，如：

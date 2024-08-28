@@ -1,0 +1,129 @@
+app_version="lyhm_${APP_VERSION}"
+
+archive_date=`date +%Y%m%d%H%M`
+
+file_path_suffix="/Users/jiechen/.jenkins/workspace/${app_version}/ios"
+#打包所需基础文件
+archive_base_path_suffix="/Users/jiechen/.jenkins/workspace/lyhm_archive_base"
+
+xcworkspace_path="${file_path_suffix}/LYHM.xcworkspace"
+
+config=${APP_CONFIG}
+
+if [ ${APP_CONFIG} == '1' ];then
+
+config="Release"
+
+else
+
+config="Debug"
+
+fi
+
+xcarchive_path="${archive_base_path_suffix}/build/${config}-iphoneos/LYHM.xcarchive"
+
+ipa_config="IPA_${config}"
+
+ExportOptionsPlist_path="${archive_base_path_suffix}/ExportOptions/ExportOptions_Debug.plist"
+
+#防止出现多个 package.json 文件，而无法将js文件打包到本地
+if [ -f "../default/package.json" ]; then
+    echo "删除 default/package.json 文件"
+    rm -rf ../default/package.json
+else
+    echo "不存在package.json文件"  
+fi
+
+if [ ${UPDATE_NODE} == '1' ];then
+cd ${file_path_suffix}
+cd ..
+#yarn add react-native@0.68.2
+npm install
+fi
+
+#将js文件打包到ios工程本地
+yarn bundle-ios
+
+xcodebuild clean -workspace ${xcworkspace_path} -scheme "LYHM" -configuration ${config}
+
+xcodebuild archive -workspace ${xcworkspace_path} -scheme "LYHM" -archivePath ${xcarchive_path} -configuration ${config} -allowProvisioningUpdates
+
+xcodebuild -exportArchive -archivePath ${xcarchive_path} -exportPath "${file_path_suffix}/${ipa_config}/${archive_date}" -exportOptionsPlist "${ExportOptionsPlist_path}" -allowProvisioningUpdates
+
+ipa_path="${file_path_suffix}/${ipa_config}/${archive_date}/花猫云商.ipa"
+
+
+echo "上传蒲公英所需配置"
+#upload_url='http://www.pgyer.com/apiv1/app/upload'
+upload_url='https://www.pgyer.com/apiv2/app/upload'
+buildInstallType=2 #值为(2,3，4)。2：密码安装，3：邀请安装，4：回答问题安装
+buildPassword='123456'   #设置App安装密码
+history=`git log --pretty=%s -6`
+
+
+echo "钉钉通知所需配置"
+dingding_suffix="https://oapi.dingtalk.com/robot/send?"
+dingding_token="3e43cec620eba5d01a3e8d56479128aa76aaba66ff52e08a95348715d0762a4a"
+dingding_url="${dingding_suffix}access_token=${dingding_token}"
+
+echo "exportArchive 打包成功，接下来开始上传ipa"
+
+#debug 上传蒲公英，releas上传 fir
+
+if [ ${APP_CONFIG} == '1' ];then
+
+uKey='03e22b6701aed543ee30d4bf2bf7e528'
+api_key='85a5fb5e24b19fffd725e8927d1278e7'
+
+curl -F "file=@${ipa_path}" -F "uKey=${uKey}" -F "_api_key=${api_key}" \
+	 -F "buildInstallType=${buildInstallType}" -F "buildPassword=${buildPassword}" \
+     -F "buildUpdateDescription=${history}" \
+     ${upload_url} \
+
+echo "release 上传 pgyer(182账号) 更新成功！"
+
+#title="花猫云商 iOS_${APP_VERSION}【Release环境】新版本已发布"
+curl ${dingding_url} \
+   -H 'Content-Type: application/json' \
+   -d '{
+   		"msgtype": "link", 
+        "link": {
+            "title": "花猫云商 iOS【Release环境】新版本已发布", 
+            "text": "点击安装最新应用（用 Safari 浏览器打开）",
+            "picUrl": "https://lv-img.oss-cn-hangzhou.aliyuncs.com/chenxiaojie/1024.png",
+            "messageUrl": "https://www.pgyer.com/hmys_iOS_release"
+        }
+      }'
+      
+echo "钉钉群通知成功！"
+
+
+else
+
+
+uKey='1067844de57eea46c4f5e469998651a6'
+api_key='75210dcfa3b5178416fa70f0fe302047'
+
+curl -F "file=@${ipa_path}" -F "uKey=${uKey}" -F "_api_key=${api_key}" \
+	 -F "buildInstallType=${buildInstallType}" -F "buildPassword=${buildPassword}" \
+     -F "buildUpdateDescription=${history}" \
+     ${upload_url} \
+
+echo "debug 上传 pgyer（189账号） 更新成功！"
+
+#title="花猫云商 iOS_${APP_VERSION}【Debug环境】新版本已发布"
+curl ${dingding_url} \
+   -H 'Content-Type: application/json' \
+   -d '{
+   		"msgtype": "link", 
+        "link": {
+            "title": "花猫云商 iOS【Debug环境】新版本已发布", 
+            "text": "点击安装最新应用（用 Safari 浏览器打开）",
+            "picUrl": "https://lv-img.oss-cn-hangzhou.aliyuncs.com/chenxiaojie/1024.png",
+            "messageUrl": "https://www.pgyer.com/lyhm"
+        }
+      }'
+      
+echo "钉钉群通知成功！" 
+
+fi
